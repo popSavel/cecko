@@ -40,7 +40,6 @@ int main(int argc, char *argv[]) {
 	}
 	
 	pic_color(obrazek);
-	
 	/*
 	int sirka = obrazek->w;
 	int vyska = obrazek->h;
@@ -66,9 +65,27 @@ int main(int argc, char *argv[]) {
 			index++;	
 		}
 	}*/
+	/*
 	for(int i = 0; i < 100; i++){	
 			printf("%d: %d, %d, %d, %d\n", i, obrazek->tab[i]->hodnoty[0], obrazek->tab[i]->hodnoty[1], obrazek->tab[i]->hodnoty[2], obrazek->tab[i]->hodnoty[3]);
+	}*/
+	/*
+	for(int i = 193900; i < 194000; i++){	
+			printf("%d: %d\n", i, obrazek->data[i]);
+	}*/
+	
+
+	printf("pocetTab: %d\n", obrazek->tab_size);
+	for(int i = 0; i < obrazek->tab_size; i++){
+		printf("tab: %d, vel: %d\n", i, obrazek->tab[i]->size);
+		for (int j = 0; j < obrazek->tab[i]->size; j++){
+			printf("hodnota: %d\n", obrazek->tab[i]->hodnoty[j]);
+		}
 	}
+	/*
+	for(int i = 192900; i < 193000; i++){
+		printf("index: %d, hodnota: %d\n", i, obrazek->data[i]);
+	}*/
 	
 	int sirka = obrazek->w;
 	int vyska = obrazek->h;

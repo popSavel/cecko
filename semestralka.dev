@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
 CompilerSettings=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;4;0;0;0
-UnitCount=3
+UnitCount=4
 
 [VersionInfo]
 Major=1
@@ -51,7 +51,7 @@ AutoIncBuildNr=0
 SyncProduct=1
 
 [Unit1]
-FileName=semestralka\semestralkatest.c
+FileName=semestralkatest.c
 CompileCpp=0
 Folder=
 Compile=1
@@ -61,7 +61,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit2]
-FileName=semestralka\pgm.h
+FileName=pgm.c
 CompileCpp=0
 Folder=
 Compile=1
@@ -71,7 +71,17 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit3]
-FileName=semestralka\pgm.c
+FileName=pgm.h
+CompileCpp=0
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit4]
+FileName=tabulka.h
 CompileCpp=0
 Folder=
 Compile=1

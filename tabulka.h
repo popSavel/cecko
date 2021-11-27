@@ -2,7 +2,8 @@
 #define __TABULKA_H__
 
 typedef struct tabulka {
-      int hodnoty[4];
+	int size;
+    int* hodnoty;
 } tabulka;
     
 #endif    

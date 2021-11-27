@@ -7,8 +7,10 @@ void pic_color(pgm *p){
 	int vyska = p->h;
 	int index = 0, hi = 0, iTab=0;
 	int max = p->max;
-	int newColor = 50;
+	p -> tab_size = 0;
+	int newColor = 20;
 	int hodnoty[4] = {0, 0, 0, 0};
+	int colorStep = 2;
 	for(int i = 0; i < vyska; i++){
 		for(int j = 0; j < sirka; j++){
 			
@@ -23,7 +25,7 @@ void pic_color(pgm *p){
 					if(j == 0){
 						//printf("1 - rad: %d, sl: %d, index: %d, hodnota: %d\n", i, j, index, obrazek->data[index]);
 						p->data[index] = newColor;
-						newColor += 20;	
+						newColor += colorStep;	
 					}else{
 						
 						sousedL = p->data[index-1];
@@ -31,7 +33,7 @@ void pic_color(pgm *p){
 							p->data[index] = sousedL;
 						}else{
 							p->data[index] = newColor;
-							newColor += 20;
+							newColor += colorStep;
 						}
 						//printf("2 - rad: %d, sl: %d, index: %d, hodnota: %d\n", i, j, index, obrazek->data[index]);
 					}
@@ -41,18 +43,17 @@ void pic_color(pgm *p){
 					if(j == 0){
 						sousedHP = p -> data[index-sirka+1];
 						if(sousedHP > 0 || sousedH > 0){
-							if(sousedHP > 0){
-								p->data[index] = sousedHP;
-								hodnoty[hi] = sousedHP;
-								hi++;
-							}
 							if(sousedH > 0){
 								p->data[index] = sousedH;
-								hodnoty[hi] = sousedH;
+								if(sousedHP > 0){
+									add_value(sousedH, sousedHP, p);
+								}
+							}else{
+								p->data[index] = sousedHP;
 							}
 						}else{
 							p->data[index] = newColor;
-							newColor += 20;
+							newColor += colorStep;
 						}
 						//printf("3 - rad: %d, sl: %d, index: %d, hodnota: %d\n", i, j, index, obrazek->data[index]);
 						
@@ -60,77 +61,179 @@ void pic_color(pgm *p){
 						sousedL = p->data[index-1];
 						sousedHL = p->data[index-sirka-1];
 						if(sousedH > 0 || sousedHL > 0 || sousedL > 0){
-							if(sousedH > 0){
-								p->data[index] = sousedH;
-								hodnoty[hi] = sousedH;
-								hi++;
-							}
-							if(sousedHL > 0){
-								p->data[index] = sousedHL;
-								hodnoty[hi] = sousedHL;
-								hi++;
-							}
 							if(sousedL > 0){
 								p->data[index] = sousedL;
-								hodnoty[hi] = sousedL;
+								if(sousedHL > 0){
+									add_value(sousedL, sousedHL, p);
+								}
+								if(sousedH > 0){
+									add_value(sousedL, sousedH, p);
+								}
+							}
+							else if(sousedHL > 0){
+								p->data[index] = sousedHL;
+								if(sousedH > 0){
+									add_value(sousedH, sousedHL, p);
+								}
+							}
+							else{
+								p->data[index] = sousedH;
 							}
 						}else{
 							p->data[index] = newColor;
-							newColor += 20;
+							newColor += colorStep;
 						}
 						//printf("5 - rad: %d, sl: %d, index: %d, hodnota: %d\n", i, j, index, obrazek->data[index]); 
 						
-					}else{
+					 }else{
 						sousedL = p->data[index-1];
 						sousedHL = p->data[index-sirka-1];
 						sousedHP = p -> data[index-sirka+1];
 						if(sousedH > 0 || sousedHL > 0 || sousedL > 0 || sousedHP > 0){
-							if(sousedH > 0){
-								p->data[index] = sousedH;
-								hodnoty[hi] = sousedH;
-								hi++;
-							}
-							if(sousedHL > 0){
-								p->data[index] = sousedHL;
-								hodnoty[hi] = sousedHL;
-								hi++;
-							}
-							if(sousedHP > 0){
-								p->data[index] = sousedHP;
-								hodnoty[hi] = sousedHP;
-								hi++;
-							}
 							if(sousedL > 0){
 								p->data[index] = sousedL;
-								hodnoty[hi] = sousedL;
+								if(sousedHL > 0){
+									add_value(sousedL, sousedHL, p);
+								}
+								if(sousedH > 0){
+									add_value(sousedL, sousedH, p);
+								}
+								if(sousedHP > 0){
+									add_value(sousedL, sousedHP, p);
+								}
+							}
+							else if(sousedHL > 0){
+								p->data[index] = sousedHL;
+								if(sousedH > 0){
+									add_value(sousedHL, sousedH, p);
+								}
+								if(sousedHP > 0){
+									add_value(sousedHL, sousedHP, p);
+								}
+							}
+							else if(sousedH > 0){
+								p->data[index] = sousedH;
+								if(sousedHP > 0){
+									add_value(sousedH, sousedHP, p);
+								}
+							}
+							else{
+								p->data[index] = sousedHP;	
 							}
 						}else{
 							p->data[index] = newColor;
-							newColor += 20;
+							newColor += colorStep;
 						}
 					}
 				}
+				//printf("index: %d, pocetTAb: %d\n", index, p->tab_size);
 			}
-			
+			/*
 			if((hodnoty[0]!=hodnoty[1] || hodnoty[0]!=hodnoty[2] || hodnoty[0]!=hodnoty[3])||
 			(hodnoty[1]!=hodnoty[2] || hodnoty[1]!=hodnoty[3])||(hodnoty[2]!=hodnoty[3])){
 			
+			//add_value(hodnoty, index);	
+			
 			tabulka* newTab;
 			newTab = (tabulka *) malloc(sizeof(tabulka));
-			
+			newTab->hodnoty = (int *) malloc(4);
 			
 			for(int i = 0; i < 4; i++){
 				//printf("%d\n", hodnoty[i]);
 				newTab->hodnoty[i] = hodnoty[i];
 				printf("%d: %d\n",index,newTab->hodnoty[i]);
-				hodnoty[i] = 0;
 			}
 			p->tab[iTab] = newTab;
 			iTab++;
 			}
-			//printf("ind: %d, itab: %d, ok\n", index, iTab);
+			for(int i = 0; i < 4; i++){
+				hodnoty[i] = 0;
+			}*/
+			//printf("ind: %d, %d ok\n", index, p->tab_size);
+			//printf("index: %d, nc: %d\n", index, newColor);
 			index++;
 			hi=0;	
 		}
 	}
 }
+void add_value(int a, int b, pgm *p){
+	tabulka* newTab;
+	if(p -> tab_size == 0 ){
+		newTab = (tabulka *) malloc(sizeof(tabulka));
+		newTab->hodnoty = (int *) malloc(500);
+		newTab->hodnoty[0] = a;
+		newTab->hodnoty[1] = b;
+		newTab->size = 2;
+		p->tab[0] = newTab;
+		p->tab_size = 1;
+		return 0;
+	}else{
+		int index_a = 0, index_b = 0;
+		for(int i = 0; i < p->tab_size; i++){
+			for(int j = 0; j < p->tab[i]->size; j++){
+				
+					if(p->tab[i]->hodnoty[j] == a){
+						a = 0;
+						index_a = i;
+					} 
+					if(p->tab[i]->hodnoty[j] == b){
+						b = 0;
+						index_b = i;
+					} 
+			
+			}
+		}
+		if(a != 0 && b != 0){
+			//printf("redy");
+			newTab = malloc(sizeof(tabulka));
+			newTab->hodnoty = (int *) malloc(50);
+			newTab->hodnoty[0] = a;
+			newTab->hodnoty[1] = b;
+			newTab->size = 2;
+			p->tab[p->tab_size] = newTab;
+			p->tab_size++;
+			return 0;
+		}else if(a == 0 && b == 0){
+			if(index_a != index_b){
+				//printf("redy\n");
+				int tab_b = 0, tab_a = 0;
+				if(index_a < index_b){
+					tab_b = index_b;
+					tab_a = index_a;
+				}else{
+					tab_b = index_a;
+					tab_a = index_b;
+				}
+				int size_taba = p->tab[tab_a]->size;
+				int size_tabb = p->tab[tab_b]->size;	
+								
+				for(int i = 0; i < size_tabb; i++){
+					p->tab[tab_a]->hodnoty[size_taba] = p->tab[tab_b]->hodnoty[i];
+					p->tab[tab_b]->hodnoty[i] = p->max+1;
+					//p->tab[tab_b]->size = 0;
+					size_taba++;
+				}
+				
+				p->tab[tab_a]->size = size_taba;
+			}
+		}else{
+			//printf("a: %d, b: %d\n", a, b);
+			int vel = 0;
+			//printf("vel: %d", vel);
+			if(a == 0){
+				vel = p->tab[index_a]->size;
+				p->tab[index_a]->hodnoty[vel] = b;
+				p->tab[index_a]->size++;
+			}else{
+				vel = p->tab[index_b]->size;
+				p->tab[index_b]->hodnoty[vel] = a;
+				p->tab[index_b]->size++;
+			}
+		}
+	}
+	return 0;
+}
+
+void pic_recolor(pgm *p){
+	
+} 
