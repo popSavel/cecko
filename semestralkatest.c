@@ -31,8 +31,9 @@ int main(int argc, char *argv[]) {
 	int velikost = obrazek->w * obrazek->h;
 	//printf("VELIKOST: %d\n", velikost);
 	
-	obrazek->data = (pixel*) malloc(sizeof(pixel) * velikost);
-	obrazek->tab = (tabulka**) malloc(sizeof(tabulka) * 10000);
+	obrazek->data = (int*) malloc(sizeof(int) * velikost);
+	obrazek->hodnoty = (pixel*) malloc(sizeof(pixel) * velikost);
+	obrazek->tab = (tabulka**) malloc(sizeof(tabulka) * 200000);
 	for(int i = 0; i < velikost; i++){
 		x = fgetc(f);
 		obrazek->data[i] = x;
@@ -40,37 +41,13 @@ int main(int argc, char *argv[]) {
 	}
 	
 	pic_color(obrazek);
-	/*
-	int sirka = obrazek->w;
-	int vyska = obrazek->h;
-	int index = 0;
-	int max = obrazek->max;
-	for(int i = 0; i < vyska; i++){
-		for(int j = 0; j < sirka; j++){
-			if(i == 0){
-				if(j == 0){
-					printf("1 - rad: %d, sl: %d, index: %d, hodnota: %d\n", i, j, index, obrazek->data[index]);
-				}else{
-					printf("2 - rad: %d, sl: %d, index: %d, hodnota: %d\n", i, j, index, obrazek->data[index]);
-				}
-			}else{
-				if(j == 0){
-					printf("3 - rad: %d, sl: %d, index: %d, hodnota: %d\n", i, j, index, obrazek->data[index]);
-				}else if(j == sirka-1){
-					printf("5 - rad: %d, sl: %d, index: %d, hodnota: %d\n", i, j, index, obrazek->data[index]);
-				}else{
-					printf("4 - rad: %d, sl: %d, index: %d, hodnota: %d\n", i, j, index, obrazek->data[index]);
-				}
-			}
-			index++;	
-		}
-	}*/
+	
 	/*
 	for(int i = 0; i < 100; i++){	
 			printf("%d: %d, %d, %d, %d\n", i, obrazek->tab[i]->hodnoty[0], obrazek->tab[i]->hodnoty[1], obrazek->tab[i]->hodnoty[2], obrazek->tab[i]->hodnoty[3]);
 	}*/
 	/*
-	for(int i = 193900; i < 194000; i++){	
+	for(int i = 0; i < obrazek->h * obrazek->w; i++){	
 			printf("%d: %d\n", i, obrazek->data[i]);
 	}*/
 	
@@ -82,10 +59,22 @@ int main(int argc, char *argv[]) {
 			printf("hodnota: %d\n", obrazek->tab[i]->hodnoty[j]);
 		}
 	}
+	
+	adj_tab(obrazek);
+	
+	printf("pocetTab: %d\n", obrazek->tab_size);
+	for(int i = 0; i < obrazek->tab_size; i++){
+		printf("tab: %d, vel: %d\n", i, obrazek->tab[i]->size);
+		for (int j = 0; j < obrazek->tab[i]->size; j++){
+			printf("hodnota: %d\n", obrazek->tab[i]->hodnoty[j]);
+		}
+	}
+	
 	/*
 	for(int i = 192900; i < 193000; i++){
 		printf("index: %d, hodnota: %d\n", i, obrazek->data[i]);
 	}*/
+	pic_recolor(obrazek);
 	
 	int sirka = obrazek->w;
 	int vyska = obrazek->h;
@@ -96,7 +85,7 @@ int main(int argc, char *argv[]) {
 	fprintf(vystup, "255\n");
 	
 	for(int i = 0; i < sirka * vyska; i++){
-		fputc(obrazek->data[i], vystup);
+		fputc(obrazek->hodnoty[i], vystup);
 	}
 	fprintf(vystup, "\n");
 	fclose(vystup);

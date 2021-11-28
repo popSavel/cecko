@@ -8,9 +8,9 @@ void pic_color(pgm *p){
 	int index = 0, hi = 0, iTab=0;
 	int max = p->max;
 	p -> tab_size = 0;
-	int newColor = 20;
+	int newColor = 10;
 	int hodnoty[4] = {0, 0, 0, 0};
-	int colorStep = 2;
+	int colorStep = 1;
 	for(int i = 0; i < vyska; i++){
 		for(int j = 0; j < sirka; j++){
 			
@@ -126,7 +126,8 @@ void pic_color(pgm *p){
 						}
 					}
 				}
-				//printf("index: %d, pocetTAb: %d\n", index, p->tab_size);
+			}else{
+				p->hodnoty[i] = 0;
 			}
 			/*
 			if((hodnoty[0]!=hodnoty[1] || hodnoty[0]!=hodnoty[2] || hodnoty[0]!=hodnoty[3])||
@@ -150,7 +151,7 @@ void pic_color(pgm *p){
 				hodnoty[i] = 0;
 			}*/
 			//printf("ind: %d, %d ok\n", index, p->tab_size);
-			//printf("index: %d, nc: %d\n", index, newColor);
+			//printf("index: %d, val: %d\n", index, p->data[i]);
 			index++;
 			hi=0;	
 		}
@@ -160,7 +161,7 @@ void add_value(int a, int b, pgm *p){
 	tabulka* newTab;
 	if(p -> tab_size == 0 ){
 		newTab = (tabulka *) malloc(sizeof(tabulka));
-		newTab->hodnoty = (int *) malloc(500);
+		newTab->hodnoty = (int *) malloc(sizeof(int) * 500);
 		newTab->hodnoty[0] = a;
 		newTab->hodnoty[1] = b;
 		newTab->size = 2;
@@ -186,7 +187,7 @@ void add_value(int a, int b, pgm *p){
 		if(a != 0 && b != 0){
 			//printf("redy");
 			newTab = malloc(sizeof(tabulka));
-			newTab->hodnoty = (int *) malloc(50);
+			newTab->hodnoty = (int *) malloc(sizeof(int) * 10000);
 			newTab->hodnoty[0] = a;
 			newTab->hodnoty[1] = b;
 			newTab->size = 2;
@@ -209,12 +210,13 @@ void add_value(int a, int b, pgm *p){
 								
 				for(int i = 0; i < size_tabb; i++){
 					p->tab[tab_a]->hodnoty[size_taba] = p->tab[tab_b]->hodnoty[i];
-					p->tab[tab_b]->hodnoty[i] = p->max+1;
+					p->tab[tab_b]->hodnoty[i] = p->max+1000;
 					//p->tab[tab_b]->size = 0;
 					size_taba++;
 				}
 				
 				p->tab[tab_a]->size = size_taba;
+				//p->tab_size--;
 			}
 		}else{
 			//printf("a: %d, b: %d\n", a, b);
@@ -234,6 +236,29 @@ void add_value(int a, int b, pgm *p){
 	return 0;
 }
 
+void adj_tab(pgm* p){
+	int index = 0, pocet_tab = 0;
+	for(int i = 0; i < p->tab_size; i++){
+		if(p->tab[i]->hodnoty[0] != p->max+1000){
+			p->tab[index] = p->tab[i];
+			pocet_tab++;
+			index++;
+		}
+	}
+	p->tab_size = pocet_tab;
+}
+
 void pic_recolor(pgm *p){
-	
+	int sirka = p->w;
+	int vyska = p->h;
+	for(int i = 0; i < sirka * vyska; i++){
+		int value = p->data[i];
+			for(int j = 0; j < p->tab_size; j++){
+				for(int k = 0; k < p->tab[j]->size; k++){
+					if(value == p->tab[j]->hodnoty[k]){
+						p->hodnoty[i] = p->tab[j];
+					}
+				}
+			}
+	}
 } 
