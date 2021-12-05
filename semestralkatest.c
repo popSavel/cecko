@@ -5,90 +5,78 @@
 
 
 int main(int argc, char *argv[]) {
-	//char* soubor = argv[0];
-	pgm* obrazek;
-	FILE* f;
-	int x;
-	char znak[256];
+	if(argc != 3){
+		perror("ERROR: there must be 2 arguments!!!!!........");
+		return 1;
+	}
 	
-	f = fopen("C:/Users/sabal/C projects/semestralka/images/183_3258532_1.pgm", "r");
+	pgm* obrazek;
+	FILE *f, *vystup;
+	int x, sirka, vyska, velikost;
+	char znak[2];
+	
+	f = fopen(argv[1], "r");
+	//f = fopen("images/w2test.pgm", "r");
 	if(!f) {
 		perror("ERROR opening file!!!!!........");
 		return 1;
 	}
 	
 	obrazek = (pgm *) malloc (sizeof(pgm));
-	fscanf (f, "%s", znak);
+	znak[0] = fgetc(f);
+	znak[1] = fgetc(f);
+	if(znak[0] != 'P' && znak[1] != '5'){
+		perror("ERROR: Wrong picture format!!!!!........");
+		return 1;
+	}
 	
 	fscanf(f, "%d", &obrazek->w);
 	fscanf(f, "%d", &obrazek->h);
-	//obrazek->max = fgetc(f);
 	fscanf(f, "%d", &obrazek->max);
-	printf("WIDTH: %d, HEIGHT %d\n", obrazek->w, obrazek->h);
-	printf("MAX: %d\n", obrazek->max);
+	
+	//konec radku
 	x = fgetc(f);
 	
-	int velikost = obrazek->w * obrazek->h;
-	//printf("VELIKOST: %d\n", velikost);
+	if(obrazek->w < 0 || obrazek->h < 0 || obrazek->max < 0){
+		perror("ERROR: Wrong picture parameters!!!!!........");
+		return 1;
+	}
+	
+	sirka = obrazek->w;
+	vyska = obrazek->h;
+	velikost = sirka * vyska;
 	
 	obrazek->data = (int*) malloc(sizeof(int) * velikost);
 	obrazek->hodnoty = (pixel*) malloc(sizeof(pixel) * velikost);
-	obrazek->tab = (tabulka**) malloc(sizeof(tabulka) * 200000);
 	for(int i = 0; i < velikost; i++){
 		x = fgetc(f);
 		obrazek->data[i] = x;
-		//printf("%d: %d\n",i,  obrazek->data[i]);
+		//test, zda je obrazek cernobily
+		if(x != 0 && x != obrazek->max){
+			perror("ERROR: Wrong picture format!!!!!........");
+			return 1;
+		}
 	}
 	
 	pic_color(obrazek);
 	
-	/*
-	for(int i = 0; i < 100; i++){	
-			printf("%d: %d, %d, %d, %d\n", i, obrazek->tab[i]->hodnoty[0], obrazek->tab[i]->hodnoty[1], obrazek->tab[i]->hodnoty[2], obrazek->tab[i]->hodnoty[3]);
-	}*/
-	/*
-	for(int i = 0; i < obrazek->h * obrazek->w; i++){	
-			printf("%d: %d\n", i, obrazek->data[i]);
-	}*/
-	
-
-	printf("pocetTab: %d\n", obrazek->tab_size);
-	for(int i = 0; i < obrazek->tab_size; i++){
-		printf("tab: %d, vel: %d\n", i, obrazek->tab[i]->size);
-		for (int j = 0; j < obrazek->tab[i]->size; j++){
-			printf("hodnota: %d\n", obrazek->tab[i]->hodnoty[j]);
-		}
-	}
-	
-	adj_tab(obrazek);
-	
-	printf("pocetTab: %d\n", obrazek->tab_size);
-	for(int i = 0; i < obrazek->tab_size; i++){
-		printf("tab: %d, vel: %d\n", i, obrazek->tab[i]->size);
-		for (int j = 0; j < obrazek->tab[i]->size; j++){
-			printf("hodnota: %d\n", obrazek->tab[i]->hodnoty[j]);
-		}
-	}
-	
-	/*
-	for(int i = 192900; i < 193000; i++){
-		printf("index: %d, hodnota: %d\n", i, obrazek->data[i]);
-	}*/
 	pic_recolor(obrazek);
 	
-	int sirka = obrazek->w;
-	int vyska = obrazek->h;
-	FILE* vystup;
-	vystup = fopen("C:/Users/sabal/C projects/semestralka/vystup.pgm", "w");
+	vystup = fopen(argv[2], "w");
+	//vystup = fopen("C:/Users/sabal/C projects/semestralka/vystup.pgm", "w");
 	fprintf(vystup, "P5\n");
 	fprintf(vystup, "%d %d\n", sirka, vyska);
-	fprintf(vystup, "255\n");
+	fprintf(vystup, "%d\n", obrazek->max);
 	
-	for(int i = 0; i < sirka * vyska; i++){
+	for(int i = 0; i < velikost; i++){
 		fputc(obrazek->hodnoty[i], vystup);
 	}
 	fprintf(vystup, "\n");
 	fclose(vystup);
+	
+	free(obrazek->data);
+	free(obrazek->hodnoty);
+	free(obrazek);
 	
 	return 0;
 }

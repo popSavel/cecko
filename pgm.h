@@ -11,14 +11,13 @@ typedef struct pgm {
       int tab_size;
       int* data;
       pixel* hodnoty;
-      tabulka** tab;
+      tabulka* tab_first;
+      tabulka* tab_last;
 } pgm;
     
 void pic_color(pgm *p);
 
 void add_value(int a, int b, pgm *p);
-
-void adj_tab(pgm* p);
     
 void pic_recolor(pgm *p);    
     

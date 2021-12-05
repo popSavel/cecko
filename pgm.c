@@ -5,29 +5,27 @@
 void pic_color(pgm *p){
 	int sirka = p->w;
 	int vyska = p->h;
-	int index = 0, hi = 0, iTab=0;
+	int index = 0;
 	int max = p->max;
 	p -> tab_size = 0;
-	int newColor = 10;
-	int hodnoty[4] = {0, 0, 0, 0};
-	int colorStep = 1;
+	p -> tab_first = NULL;
+	p -> tab_last = NULL;
+	int newColor = 20;
+	int colorStep = 2;
+	int sousedH, sousedL, sousedHL, sousedHP;
 	for(int i = 0; i < vyska; i++){
 		for(int j = 0; j < sirka; j++){
-			
 			if(p->data[index] == max){
 				
-				int sousedH = 0;
-				int sousedL = 0;
-				int sousedHL = 0;
-				int sousedHP = 0;
+				sousedH = 0;
+				sousedL = 0;
+				sousedHL = 0;
+				sousedHP = 0;
 				if(i == 0){
-					
 					if(j == 0){
-						//printf("1 - rad: %d, sl: %d, index: %d, hodnota: %d\n", i, j, index, obrazek->data[index]);
 						p->data[index] = newColor;
 						newColor += colorStep;	
 					}else{
-						
 						sousedL = p->data[index-1];
 						if(sousedL>0){
 							p->data[index] = sousedL;
@@ -35,10 +33,9 @@ void pic_color(pgm *p){
 							p->data[index] = newColor;
 							newColor += colorStep;
 						}
-						//printf("2 - rad: %d, sl: %d, index: %d, hodnota: %d\n", i, j, index, obrazek->data[index]);
 					}
-				}else{
 					
+				}else{
 					sousedH = p->data[index - sirka];
 					if(j == 0){
 						sousedHP = p -> data[index-sirka+1];
@@ -55,7 +52,6 @@ void pic_color(pgm *p){
 							p->data[index] = newColor;
 							newColor += colorStep;
 						}
-						//printf("3 - rad: %d, sl: %d, index: %d, hodnota: %d\n", i, j, index, obrazek->data[index]);
 						
 					}else if(j == sirka-1){
 						sousedL = p->data[index-1];
@@ -83,7 +79,6 @@ void pic_color(pgm *p){
 							p->data[index] = newColor;
 							newColor += colorStep;
 						}
-						//printf("5 - rad: %d, sl: %d, index: %d, hodnota: %d\n", i, j, index, obrazek->data[index]); 
 						
 					 }else{
 						sousedL = p->data[index-1];
@@ -129,123 +124,117 @@ void pic_color(pgm *p){
 			}else{
 				p->hodnoty[i] = 0;
 			}
-			/*
-			if((hodnoty[0]!=hodnoty[1] || hodnoty[0]!=hodnoty[2] || hodnoty[0]!=hodnoty[3])||
-			(hodnoty[1]!=hodnoty[2] || hodnoty[1]!=hodnoty[3])||(hodnoty[2]!=hodnoty[3])){
-			
-			//add_value(hodnoty, index);	
-			
-			tabulka* newTab;
-			newTab = (tabulka *) malloc(sizeof(tabulka));
-			newTab->hodnoty = (int *) malloc(4);
-			
-			for(int i = 0; i < 4; i++){
-				//printf("%d\n", hodnoty[i]);
-				newTab->hodnoty[i] = hodnoty[i];
-				printf("%d: %d\n",index,newTab->hodnoty[i]);
-			}
-			p->tab[iTab] = newTab;
-			iTab++;
-			}
-			for(int i = 0; i < 4; i++){
-				hodnoty[i] = 0;
-			}*/
-			//printf("ind: %d, %d ok\n", index, p->tab_size);
-			//printf("index: %d, val: %d\n", index, p->data[i]);
 			index++;
-			hi=0;	
 		}
 	}
 }
 void add_value(int a, int b, pgm *p){
-	tabulka* newTab;
-	if(p -> tab_size == 0 ){
+	void *temp;
+	if(p -> tab_first == NULL){
+		tabulka* newTab;
 		newTab = (tabulka *) malloc(sizeof(tabulka));
-		newTab->hodnoty = (int *) malloc(sizeof(int) * 500);
+		newTab->max_size = 50;
+		newTab->hodnoty = (int *) malloc(sizeof(int) * newTab->max_size);
 		newTab->hodnoty[0] = a;
-		newTab->hodnoty[1] = b;
-		newTab->size = 2;
-		p->tab[0] = newTab;
-		p->tab_size = 1;
-		return 0;
-	}else{
-		int index_a = 0, index_b = 0;
-		for(int i = 0; i < p->tab_size; i++){
-			for(int j = 0; j < p->tab[i]->size; j++){
-				
-					if(p->tab[i]->hodnoty[j] == a){
-						a = 0;
-						index_a = i;
-					} 
-					if(p->tab[i]->hodnoty[j] == b){
-						b = 0;
-						index_b = i;
-					} 
-			
-			}
-		}
-		if(a != 0 && b != 0){
-			//printf("redy");
-			newTab = malloc(sizeof(tabulka));
-			newTab->hodnoty = (int *) malloc(sizeof(int) * 10000);
-			newTab->hodnoty[0] = a;
+		if(a == b){
+			newTab->size = 1;
+		}else{
 			newTab->hodnoty[1] = b;
 			newTab->size = 2;
-			p->tab[p->tab_size] = newTab;
+		}
+		newTab->next = NULL;
+		newTab->prev = NULL;
+		p->tab_first = newTab;
+		p->tab_last = newTab;
+		p->tab_size = 1;
+	}else{
+		tabulka *index_a, *index_b;
+		tabulka* walk = p->tab_first;
+		while(walk != NULL){
+			for(int j = 0; j < walk->size; j++){
+					if(walk->hodnoty[j] == a){
+						a = 0;
+						index_a = walk;
+					} 
+					if(walk->hodnoty[j] == b){
+						b = 0;						
+						index_b = walk;
+					} 
+			}
+			walk = walk->next;
+		}
+		if(a != 0 && b != 0){
+			tabulka* newTab;
+			newTab = malloc(sizeof(tabulka));
+			newTab->max_size = 50;
+			newTab->hodnoty = (int *) malloc(sizeof(int) * newTab->max_size);
+			newTab->hodnoty[0] = a;
+			if(a == b){
+			newTab->size = 1;
+			}else{
+			newTab->hodnoty[1] = b;
+			newTab->size = 2;
+			}
+			newTab->next = NULL;
+			
+			p->tab_last->next = newTab;
+			newTab->prev = p->tab_last;
+			p->tab_last = newTab;
 			p->tab_size++;
 			return 0;
 		}else if(a == 0 && b == 0){
 			if(index_a != index_b){
-				//printf("redy\n");
-				int tab_b = 0, tab_a = 0;
-				if(index_a < index_b){
-					tab_b = index_b;
-					tab_a = index_a;
-				}else{
-					tab_b = index_a;
-					tab_a = index_b;
+				int vel = index_a->size;
+				index_a->size += index_b->size;
+				if(index_a->size >= index_a->max_size){
+					index_a->max_size = index_a->size*2;
+					temp = realloc(index_a->hodnoty, sizeof(int) * index_a->max_size);
+					index_a->hodnoty = (tabulka *) temp;
+					
 				}
-				int size_taba = p->tab[tab_a]->size;
-				int size_tabb = p->tab[tab_b]->size;	
-								
-				for(int i = 0; i < size_tabb; i++){
-					p->tab[tab_a]->hodnoty[size_taba] = p->tab[tab_b]->hodnoty[i];
-					p->tab[tab_b]->hodnoty[i] = p->max+1000;
-					//p->tab[tab_b]->size = 0;
-					size_taba++;
+				for(int i = 0; i < index_b->size; i++){
+					index_a->hodnoty[vel] = index_b->hodnoty[i];
+					vel++;
 				}
 				
-				p->tab[tab_a]->size = size_taba;
-				//p->tab_size--;
+				if(index_b->next == NULL){
+					index_b->prev->next = NULL;
+					p->tab_last = index_b->prev;
+				}
+				else if(index_b->prev == NULL){
+					index_b->next->prev = NULL;
+					p->tab_first = index_b->next;
+				}else{
+					index_b->next->prev = index_b->prev;
+					index_b->prev->next = index_b->next;
+				}
+				p->tab_size--;
 			}
 		}else{
-			//printf("a: %d, b: %d\n", a, b);
 			int vel = 0;
-			//printf("vel: %d", vel);
 			if(a == 0){
-				vel = p->tab[index_a]->size;
-				p->tab[index_a]->hodnoty[vel] = b;
-				p->tab[index_a]->size++;
-			}else{
-				vel = p->tab[index_b]->size;
-				p->tab[index_b]->hodnoty[vel] = a;
-				p->tab[index_b]->size++;
+				vel = index_a->size;
+				index_a->size++;
+				if(index_a->size >= index_a->max_size){
+					index_a->max_size = index_a->size*2;					
+					temp = realloc(index_a->hodnoty, sizeof(int) * index_a->max_size);
+					index_a->hodnoty = (tabulka *) temp;
+				}
+				index_a->hodnoty[vel] = b;
+				
+			}else{			
+				vel = index_b->size;
+				index_b->size++;
+				if(index_b->size >= index_b->max_size){				
+					index_b->max_size = index_b->size*2;					
+					temp = realloc(index_b->hodnoty, sizeof(int) * index_b->max_size);									
+					index_b->hodnoty = (tabulka *) temp;
+				}
+				index_b->hodnoty[vel] = a;
 			}
 		}
 	}
 	return 0;
-}
-
-void adj_tab(pgm* p){
-	int index = 0, pocet_tab = 0;
-	for(int i = 0; i < p->tab_size; i++){
-		if(p->tab[i]->hodnoty[0] != p->max+1000){
-			p->tab[index] = p->tab[i];
-			pocet_tab++;
-			index++;
-		}
-	}
-	p->tab_size = pocet_tab;
 }
 
 void pic_recolor(pgm *p){
@@ -253,12 +242,16 @@ void pic_recolor(pgm *p){
 	int vyska = p->h;
 	for(int i = 0; i < sirka * vyska; i++){
 		int value = p->data[i];
-			for(int j = 0; j < p->tab_size; j++){
-				for(int k = 0; k < p->tab[j]->size; k++){
-					if(value == p->tab[j]->hodnoty[k]){
-						p->hodnoty[i] = p->tab[j];
-					}
+		tabulka* walk = p->tab_first;
+		int index = 0;
+		while(walk != NULL){
+			for(int j = 0; j < walk->size; j++){
+				if(value == walk->hodnoty[j]){
+					p->hodnoty[i] = walk->hodnoty[0];
 				}
 			}
+			walk = walk->next;
+			index++;
+		}
 	}
 } 
