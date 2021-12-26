@@ -25,7 +25,7 @@ void pic_color(pgm *p);
 
 void add_value(int a, int b, pgm *p);
     
-int pic_recolor(pgm *p);    
+void pic_recolor(pgm *p);    
 
 int duplicates(pixel* colors, int size);
     

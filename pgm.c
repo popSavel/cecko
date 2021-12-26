@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include "pgm.h"
 
+#define def_color 20
+#define color_step 1
+#define def_size 50
+
 /**
 * funkce implementuje první průchod algoritmu CCL
 * prochází se každý pixel obrázku po řádcích a u každého se rozhodne kolik má již přebarvených seousedů a jaká je jejich hodnota
@@ -12,16 +16,21 @@ void pic_color(pgm *p){
 	int vyska = p->h;
 	int index = 0;
 	int max = p->max;
+	
 	p -> tab_size = 0;
 	p -> tab_first = NULL;
 	p -> tab_last = NULL;
-	int newColor = 20;
-	int colorStep = 1;
+	
+	int newColor = def_color;
+	int colorStep = color_step;
 	int sousedH, sousedL, sousedHL, sousedHP;
-	for(int i = 0; i < vyska; i++){
-		for(int j = 0; j < sirka; j++){
+	int i, j;
+	
+	for(i = 0; i < vyska; i++){
+		for(j = 0; j < sirka; j++){
 			if(p->data[index] == max){
 				
+				/* defaultně se očekává, že sousedé pixelu budou součástí pozadí */
 				sousedH = 0;
 				sousedL = 0;
 				sousedHL = 0;
@@ -43,10 +52,11 @@ void pic_color(pgm *p){
 							newColor += colorStep;
 						}
 					}
-				}else{
-					sousedH = p->data[index - sirka];
 					
+				/* pixely v prvním sloupci */
+				}else{
 					/* pixely v prvním sloupci */
+					sousedH = p->data[index - sirka];
 					if(j == 0){
 						sousedHP = p -> data[index-sirka+1];
 						if(sousedHP > 0 || sousedH > 0){
@@ -90,6 +100,7 @@ void pic_color(pgm *p){
 							p->data[index] = newColor;
 							newColor += colorStep;
 						}
+						
 				     /* všechny ostatní pixely */
 					 }else{
 						sousedL = p->data[index-1];
@@ -132,6 +143,7 @@ void pic_color(pgm *p){
 						}
 					}
 				}
+			/* pixel je součást pozadí, můžeme zaznamenat do finálního pole */	
 			}else{
 				p->hodnoty[i] = 0;
 			}
@@ -148,13 +160,15 @@ void pic_color(pgm *p){
 * pokud se hodnoty nachází v jiných množinách, tak se hodnoty jedné množiny překopírují do druhé a ta první se odstraní ze spojového seznamu 
 */
 void add_value(int a, int b, pgm *p){
+	
+	int j;
 	void *temp;
 	
 	/* v kolizní tabulce zatím nejsou žádné hodnoty */
 	if(p -> tab_first == NULL){
 		tabulka* newTab;
 		newTab = (tabulka *) malloc(sizeof(tabulka));
-		newTab->max_size = 50;
+		newTab->max_size = def_size;
 		newTab->hodnoty = (int *) malloc(sizeof(int) * newTab->max_size);
 		newTab->hodnoty[0] = a;
 		if(a == b){
@@ -171,9 +185,10 @@ void add_value(int a, int b, pgm *p){
 	}else{
 		tabulka *index_a, *index_b;
 		tabulka* walk = p->tab_first;
+		
 		/* průchod kolizní tabulky a zjištění, zda se v nějaké množině nachází hodnoty a nebo b */
 		while(walk != NULL){
-			for(int j = 0; j < walk->size; j++){
+			for(j = 0; j < walk->size; j++){
 					if(walk->hodnoty[j] == a){
 						a = 0;
 						index_a = walk;
@@ -185,11 +200,12 @@ void add_value(int a, int b, pgm *p){
 			}
 			walk = walk->next;
 		}
+		
 		/* hodnoty a,b v kolizní tabulce nejsou a musí se založit nová množina */
 		if(a != 0 && b != 0){
 			tabulka* newTab;
 			newTab = malloc(sizeof(tabulka));
-			newTab->max_size = 50;
+			newTab->max_size = def_size;
 			newTab->hodnoty = (int *) malloc(sizeof(int) * newTab->max_size);
 			newTab->hodnoty[0] = a;
 			if(a == b){
@@ -204,12 +220,14 @@ void add_value(int a, int b, pgm *p){
 			newTab->prev = p->tab_last;
 			p->tab_last = newTab;
 			p->tab_size++;
-			
-		}else if(a == 0 && b == 0){
-			/* hodnoty se nachází v jiných množinách */	
+		
+		/* hodnoty se nachází v jiných množinách, jednu překopírujeme do druhé */	
+		}else if(a == 0 && b == 0){	
 			if(index_a != index_b){
 				int vel = index_a->size;
 				index_a->size += index_b->size;
+				
+				/* pole se nevejde do místa alokovaného v paměti */
 				if(index_a->size >= index_a->max_size){
 					index_a->max_size = index_a->size*2;
 					temp = realloc(index_a->hodnoty, sizeof(int) * index_a->max_size);
@@ -232,6 +250,8 @@ void add_value(int a, int b, pgm *p){
 					index_b->next->prev = index_b->prev;
 					index_b->prev->next = index_b->next;
 				}
+				free(index_b->hodnoty);
+				free(index_b);
 				p->tab_size--;
 			}
 			
@@ -241,6 +261,8 @@ void add_value(int a, int b, pgm *p){
 			if(a == 0){
 				vel = index_a->size;
 				index_a->size++;
+				
+				/* pole se nevejde do místa alokovaného v paměti */
 				if(index_a->size >= index_a->max_size){
 					index_a->max_size = index_a->size*2;					
 					temp = realloc(index_a->hodnoty, sizeof(int) * index_a->max_size);
@@ -251,6 +273,8 @@ void add_value(int a, int b, pgm *p){
 			}else{			
 				vel = index_b->size;
 				index_b->size++;
+				
+				/* pole se nevejde do místa alokovaného v paměti */
 				if(index_b->size >= index_b->max_size){				
 					index_b->max_size = index_b->size*2;					
 					temp = realloc(index_b->hodnoty, sizeof(int) * index_b->max_size);									
@@ -268,20 +292,27 @@ void add_value(int a, int b, pgm *p){
 * k tomu využívá pole used_colors a funkci duplicates
 * prochází pole data a pro každou hodnotu zkopíruje do pole hodnoty příslušnou barvu z pole used_colors
 */
-int pic_recolor(pgm *p){
+void pic_recolor(pgm *p){
 	pixel *used_colors;
 	used_colors = malloc(sizeof(pixel) * p->tab_size);
 	int sirka = p->w;
 	int vyska = p->h;
-	int index;
-	for(int i = 0; i < sirka * vyska; i++){
+	int index, i, j;
+	
+	/* hodnoty v poli použitých odstínů jsou defaultně nulové */
+	for(i = 0; i < p->tab_size; i++){
+		used_colors[i] = 0;
+	}
+	
+	for(i = 0; i < sirka * vyska; i++){
 		index = 0;
 		int value = p->data[i];
 		tabulka* walk = p->tab_first;
 		while(walk != NULL){
-			for(int j = 0; j < walk->size; j++){
+			for(j = 0; j < walk->size; j++){
 				if(value == walk->hodnoty[j]){
 					if(used_colors[index] == 0){
+						/* oblasti ještě není v poli použitých odstínů žádný přiřazen*/
 						used_colors[index] = walk->hodnoty[0];
 						while(duplicates(used_colors, p->tab_size)){
 							used_colors[index] += 1;
@@ -289,7 +320,7 @@ int pic_recolor(pgm *p){
 							/* už neexistuje hodnota unsigned charu, která by nebyla použita */
 							if(used_colors[index] > p->max * 2){
 								perror("ERROR: picture has more contiguous areas than the color range is!!!!!........");
-								return 1;
+								return;
 							}
 						}
 					}
@@ -300,8 +331,7 @@ int pic_recolor(pgm *p){
 			index++;
 		}
 	}
-	free(used_colors);
-	return 0;	
+	free(used_colors);	
 }
 
 /**
@@ -309,12 +339,17 @@ int pic_recolor(pgm *p){
 * funkce projde pole colors a zjistí, zda se v něm nějaká hodnota kromě nuly vyskytuje dvakrát
 */
 int duplicates(pixel* colors, int size){
-	for(int i = 0; i < size-1; i++){
-		for(int j = i+1; j < size; j++){
-			if(colors[i] == colors[j] && (colors[i] != 0 || colors[j] != 0)){
-				return 1 ;
-			}
-		}		
+	if(size > 1 && colors==NULL){
+		return 0;
+	}else{
+		int i, j;
+		for(i = 0; i < size-1; i++){
+			for(j = i+1; j < size; j++){
+				if(colors[i] == colors[j] && (colors[i] != 0 || colors[j] != 0)){
+					return 1;
+				}
+			}		
+		}
+		return 0;
 	}
-	return 0;
 } 

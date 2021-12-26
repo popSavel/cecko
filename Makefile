@@ -1,12 +1,12 @@
 CC = gcc
 
-CFLAGS = -Wall -Wextra -pedantic -ansi -g
+CFLAGS = -Wall -Wextra -pedantic -ansi -g -std=c99
 LDFLAGS = $(CFLAGS) -lm
 
 BUILD_DIR = build
 BIN = semestralka.exe
 
-all: clean $(BUILD_DIR) $(BUILD_DIR)/$(BIN)
+clean: $(BUILD_DIR) $(BUILD_DIR)/$(BIN)
 
 $(BUILD_DIR)/$(BIN): $(BUILD_DIR)/main.o $(BUILD_DIR)/pgm.o
 	$(CC) -o $@ $^ $(LDFLAGS)
@@ -20,6 +20,3 @@ $(BUILD_DIR)/pgm.o: pgm.c pgm.h
 $(BUILD_DIR):
 	mkdir $@
 
-# on linux use rm -rf $(BUILD_DIR)
-clean:
-	del /F /Q $(BUILD_DIR) 
