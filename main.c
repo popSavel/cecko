@@ -14,6 +14,11 @@ int loadData(char *soubor, pgm *obrazek){
 	char znak[2];
 	
 	velikost_nazvu = strlen(soubor);
+	
+	/* sanity check */
+	if(soubor == NULL || obrazek == NULL){
+		return EXIT_FAILURE;
+	}
 		
 	/* kontrola, zda je vstupní soubor zadán správně */
 	if((soubor[velikost_nazvu - 1] != 'm') || (soubor[velikost_nazvu - 2] != 'g') || (soubor[velikost_nazvu - 3] != 'p') || (soubor[velikost_nazvu - 4] != '.')){
@@ -68,7 +73,7 @@ int loadData(char *soubor, pgm *obrazek){
 		
 		/* test, zda je obrazek cernobily */
 		if(x != 0 && x != obrazek->max){
-			perror("ERROR: Wrong picture format!!!!!........");
+			perror("ERROR: Wrong picture format!!!!!........, The input picture must contain only white or black pixels");
 			return EXIT_FAILURE;
 		}
 	}
@@ -85,6 +90,11 @@ int dataOutput(char *soubor, pgm *obrazek){
 	FILE *vystup;
 	
 	velikost_nazvu = strlen(soubor);
+	
+	/* sanity check */
+	if(soubor == NULL || obrazek == NULL){
+		return EXIT_FAILURE;
+	}
 	
 	/* kontrola, zda je výstupní soubor správného formátu */
 	if((soubor[velikost_nazvu - 1] != 'm') || (soubor[velikost_nazvu - 2] != 'g') || (soubor[velikost_nazvu - 3] != 'p') || (soubor[velikost_nazvu - 4] != '.')){
@@ -123,6 +133,11 @@ int freeMemory(pgm *obrazek){
 	
 	/* proměnná pro průchod spojového seznamu */
 	tabulka *walk = obrazek->tab_first;
+	
+	/* sanity check */
+	if(obrazek == NULL){
+		return EXIT_FAILURE;
+	}
 	
 	while(walk != NULL){
 		tabulka *tab = walk;

@@ -26,6 +26,11 @@ void pic_color(pgm *p){
 	int sousedH, sousedL, sousedHL, sousedHP;
 	int i, j;
 	
+	/* sanity check */
+	if(p == NULL){
+		return;
+	}
+	
 	for(i = 0; i < vyska; i++){
 		for(j = 0; j < sirka; j++){
 			if(p->data[index] == max){
@@ -164,6 +169,11 @@ void add_value(int a, int b, pgm *p){
 	int j;
 	void *temp;
 	
+	/* sanity check */
+	if(p == NULL || (a <= 0 || b <= 0 )){
+		return;
+	}
+	
 	/* v kolizní tabulce zatím nejsou žádné hodnoty */
 	if(p -> tab_first == NULL){
 		tabulka* newTab;
@@ -299,6 +309,11 @@ void pic_recolor(pgm *p){
 	int vyska = p->h;
 	int index, i, j;
 	
+	/* sanity check */
+	if(p == NULL){
+		return;
+	}
+	
 	/* hodnoty v poli použitých odstínů jsou defaultně nulové */
 	for(i = 0; i < p->tab_size; i++){
 		used_colors[i] = 0;
@@ -308,6 +323,7 @@ void pic_recolor(pgm *p){
 		index = 0;
 		int value = p->data[i];
 		tabulka* walk = p->tab_first;
+		
 		while(walk != NULL){
 			for(j = 0; j < walk->size; j++){
 				if(value == walk->hodnoty[j]){
@@ -317,7 +333,7 @@ void pic_recolor(pgm *p){
 						while(duplicates(used_colors, p->tab_size)){
 							used_colors[index] += 1;
 							
-							/* už neexistuje hodnota unsigned charu, která by nebyla použita */
+							/* pokud je splněna podmínka, tak už neexistuje hodnota unsigned charu, která by nebyla použita */
 							if(used_colors[index] > p->max * 2){
 								perror("ERROR: picture has more contiguous areas than the color range is!!!!!........");
 								return;
@@ -339,7 +355,8 @@ void pic_recolor(pgm *p){
 * funkce projde pole colors a zjistí, zda se v něm nějaká hodnota kromě nuly vyskytuje dvakrát
 */
 int duplicates(pixel* colors, int size){
-	if(size > 1 && colors==NULL){
+	/* pokud je splněna tato podmínka, nemohou být v poli stejné hodnoty */ 
+	if(size < 1 && colors == NULL){
 		return 0;
 	}else{
 		int i, j;
